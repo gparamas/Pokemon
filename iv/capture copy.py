@@ -35,7 +35,7 @@ mini = [10000010, 10000010, 10000010, 11000000, 11000010, 10000010, 10000010, 11
 comp = dict()
 
 for i in range(10):
-    temp = cv2.imread(f'images\\{i}.png')
+    temp = cv2.imread(f'data\\{i}.png')
     temp = cv2.cvtColor(temp, cv2.COLOR_BGR2GRAY)
     comp[i] = trim(cv2.threshold(temp, 0, 255, cv2.THRESH_BINARY)[1])
 

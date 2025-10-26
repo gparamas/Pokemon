@@ -16,7 +16,7 @@ thresh = 255 - thresh
 data = pytesseract.image_to_string(thresh, lang='eng', config=r'--psm 6')
 s = []
 score = []
-with open('names.txt', 'r') as f:
+with open('data\\names.txt', 'r') as f:
     l = f.read()
     s = l.split(',')
 for x in s:
