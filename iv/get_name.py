@@ -12,6 +12,8 @@ image = get_ss()
 gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)[1]
 thresh = 255 - thresh
+thresh = thresh[500:750, 180:550]
+cv2.imwrite('testname1.png', thresh)
 
 data = pytesseract.image_to_string(thresh, lang='eng', config=r'--psm 6')
 s = []
