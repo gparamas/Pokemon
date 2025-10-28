@@ -1,20 +1,13 @@
 import cv2
-import pyautogui as pya
 import numpy as np
-import keyboard
+import json
+import webview as wv
 import pytesseract
 from utils1 import *
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-def get_both_ss():
-    keyboard.wait('space')
-    nat_image = np.array(pya.screenshot().convert('RGB'))
-    keyboard.wait('space')
-    stat_image = np.array(pya.screenshot().convert('RGB'))
-    return nat_image, stat_image
-
 def main():
-    nature_page, stat_page = get_both_ss()
+    nature_page, stat_page = get_both_ss_test()
 
     gray_nature_page = cv2.cvtColor(nature_page, cv2.COLOR_RGB2GRAY)
     lvl_img = gray_nature_page[880:960, 420:600]
@@ -75,7 +68,7 @@ def main():
     level = (int(level / 100) if level % 100 == 0 else int(level / 10)) if  level > 100 else level
 
     data = pytesseract.image_to_string(nature, lang='eng', config=r'--psm 6')
-    
+
     list_natures = ['Hardy', 'Lonely', 'Adamant', 'Naughty', 'Brave', 'Bold', 'Docile', 'Impish', 'Lax', 'Relaxed', 'Modest', 'Mild', 'Bashful', 'Rash', 'Quiet', 'Calm', 'Gentle', 'Careful', 'Quirky', 'Sassy', 'Timid', 'Hasty', 'Jolly', 'Naive', 'Serious']
     poke_nature = ''
     score = []
@@ -92,11 +85,11 @@ def main():
     right = gray_stat_page[385:685, 1600:1750]
 
     stats = dict({'hp' : left[0:100, 20::],
-              'atk' : left[100:200, 20::],
-              'def' : left[200:300, 20::],
-              'spatk' : right[0:100, 20::],
-              'spdef' : right[100:200, 20::],
-              'spd' : right[200:300, 20::]
+              'attack' : left[100:200, 20::],
+              'defense' : left[200:300, 20::],
+              'special-attack' : right[0:100, 20::],
+              'special-defense' : right[100:200, 20::],
+              'speed' : right[200:300, 20::]
             })
     
     for x, y in stats.items():
@@ -109,11 +102,11 @@ def main():
     
     
     read_stats = dict({'hp' : [],
-              'atk' : [],
-              'def' : [],
-              'spatk' : [],
-              'spdef' : [],
-              'spd' : []
+              'attack' : [],
+              'defense' : [],
+              'special-attack' : [],
+              'special-defense' : [],
+              'speed' : []
             })
 
     mini = [10000010, 10000010, 10000010, 11000000, 11000010, 10000010, 10000010, 11000000, 10000010, 10000010]
@@ -129,5 +122,25 @@ def main():
             mini = [10000010, 10000010, 10000010, 10000010, 10000110, 10000010, 10000010, 11000010, 10000010, 10000010]
     print(name, poke_nature, level, read_stats)
 
-if __name__ == '__main__':
+    spec_stats = dict()
+    with open('data\\stats.txt', 'r') as f:
+        stat_data = json.load(f)
+        spec_stats = stat_data[name]
+    natures = dict()
+
+    for n, v in read_stats.items():
+        read_stats[n] = 100 * v[0] + 10 * v[1] + v[2]
+    print(read_stats)
+    with open('data\\natures.txt', 'r') as f:
+        read = [x.split(' ') for x in f.readlines()]
+        natures = {x[0] : {'+' : x[1], '-' : x[2].replace('\n', '')} for x in read}
+
+    poke_stats = [calc_iv_hp(spec_stats['hp'], read_stats['hp'], level, 128)]
+    all_stats = ['attack', 'defense', 'special-attack', 'special-defense', 'speed']
+    poke_stats.extend([calc_iv_stat(spec_stats[x], read_stats[x], (1 if natures[poke_nature]['+'] == natures[poke_nature]['-'] else 1.1 if natures[poke_nature]['+'] == x else .9 if natures[poke_nature]['-'] == x else 1), level, (124 if x == 'defense' else 252 if x =='special-attack' else 4 if x == 'speed' else 0)) for x in all_stats])
+    print(poke_stats)
+    
+
+if __name__ == '__main__':  
+    wv.create_window('IV', url='')
     main()
