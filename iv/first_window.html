@@ -1,19 +1,79 @@
 <html>
-    <script>
-        {
-            element = document.getElementById('text')
-            if(pywebview.state.s == 2) {
-                element.textContent = 'a'
-            } else {
-                element.textContent = 'b'
-            }
-        }
-    </script>
-<body>
-    <div>
-        <h1>penis</h1>
-        <h1 id="text">a</h1>
-    </div>
-</body>
-
+	<body>
+		<script>
+			function b() {
+				pywebview.api.change_state_one().then(() => console.log('b'))
+			}
+			function a() {
+				pywebview.api.change_state_two(new Array(128, 0, 124, 252, 0, 4))
+				.then(
+					() => pywebview.api.get_ivs())
+				.then(
+					(ivs) => pywebview.api.get_stats().then(stats => [ivs, stats])
+				)
+				.then(
+					([ivs, stats]) => pywebview.api.get_evs().then(evs => [ivs, stats, evs])
+				)
+				.then(
+					([ivs, stats, evs]) => {
+						document.getElementById('i').innerHTML = 
+							`<table>
+							<tr>
+								<th>Name</th>
+								<th>Stat Value</th>
+								<th>EV Value</th>
+								<th>IV Range</th>
+							</tr>
+							<tr>
+								<td>hp</td>
+								<td>${stats['hp']}</td>
+								<td>${evs[0]}</td>
+								<td>${ivs['hp']}</td>
+							</tr>
+							<tr>
+								<td>atk</td>
+								<td>${stats['attack']}</td>
+								<td>${evs[1]}</td>
+								<td>${ivs['attack']}</td>
+							</tr>
+							<tr>
+								<td>def</td>
+								<td>${stats['defense']}</td>
+								<td>${evs[2]}</td>
+								<td>${ivs['defense']}</td>
+								
+							</tr>
+							<tr>
+								<td>spatk</td>
+								<td>${stats['special-attack']}</td>
+								<td>${evs[3]}</td>
+								<td>${ivs['special-attack']}</td>
+							</tr>
+							<tr>
+								<td>spdef</td>
+								<td>${stats['special-defense']}</td>
+								<td>${evs[4]}</td>
+								<td>${ivs['special-defense']}</td>
+							</tr>
+							<tr>
+								<td>spd</td>
+								<td>${stats['speed']}</td>
+								<td>${evs[5]}</td>
+								<td>${ivs['speed']}</td>
+							</tr>
+							</table>
+							`
+				})
+			}
+		</script>
+		<div>
+			<button onclick="b()">1</button>
+		</div>
+		<div>
+			<button onclick="a()">1</button>
+		</div>
+		<div id="container">
+			<h1 class="p" id="i"></h1>
+		</div>
+	</body>
 </html>

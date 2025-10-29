@@ -22,7 +22,7 @@ def get_both_ss():
 
 
 def get_both_ss_test():
-    return cv2.cvtColor(cv2.imread('iv\\nat_img.png'), cv2.COLOR_BGR2RGB), cv2.cvtColor(cv2.imread('iv\\stat_img.png'), cv2.COLOR_BGR2RGB)
+    return cv2.cvtColor(cv2.imread('iv\\nat_img.png'), cv2.COLOR_BGR2GRAY), cv2.cvtColor(cv2.imread('iv\\stat_img.png'), cv2.COLOR_BGR2GRAY)
 
 def longest_common_subsequence(s1, s2):
     m = [[0] * (len(s2) + 1) for _ in range(len(s1) + 1)]
@@ -61,7 +61,7 @@ def trim(img):
     resized = cv2.resize(cropped, (120, 150), interpolation=cv2.INTER_NEAREST)
     return resized
 
-def get_ss():
+def get_ss_manual():
     while(True):
         if(keyboard.is_pressed('space')):
             image = np.array(pya.screenshot().convert('RGB'))
@@ -69,31 +69,44 @@ def get_ss():
     image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     return image
 
+def get_ss():
+    image = np.array(pya.screenshot().convert('RGB'))
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    return image
+
 def calc_iv_hp(base, curr, lev, ev=0):
     A = curr - lev - 10 
-    print(A)
     T_min = math.ceil(Fraction(100*A,lev))
     T_max = math.ceil(Fraction(100*(A+1),lev))
     return T_min - 2 * base - ev//4, T_max - 2 * base - ev//4-1
     
-def calc_iv_stat(base, curr, nat, lev, ev=0):
-    nat = Fraction.from_float(float(nat)).limit_denominator(1000)
-    print(base, curr, nat, lev)
-    A_min = math.ceil(Fraction(curr, 1) / nat - 5)
-    A_max = math.ceil(Fraction(curr + 1, 1)/nat - 5) - 1
-    poss_ivs = []
-    print(A_min, A_max)
-    for a in range(A_min, A_max + 1):
-        T_min = math.ceil(Fraction(100 * a, lev))
-        T_max = math.ceil(Fraction(100 * (a + 1), lev)) - 1
+def calc_iv_stat(base, stats, nat, lev, ev=[0, 0, 0, 0, 0]):
+    all_stats = ['attack', 'defense', 'special-attack', 'special-defense', 'speed']
+    ivs = {x:(0, 0) for x in all_stats}
+
+    natures = dict()
+    with open('data\\natures.txt', 'r') as f:
+        read = [x.split(' ') for x in f.readlines()]
+        natures = {x[0] : [float(y.replace('\n', '')) for y in x[1::]] for x in read}
+
+    for i, curr in enumerate(all_stats):
+        nat_val = Fraction.from_float(float(natures[nat][i])).limit_denominator(1000)
+        A_min = math.ceil(Fraction(stats[curr], 1) / nat_val - 5)
+        A_max = math.ceil(Fraction(stats[curr] + 1, 1)/ nat_val - 5) - 1
+        poss_ivs = []
+        for a in range(A_min, A_max + 1):
+            T_min = math.ceil(Fraction(100 * a, lev))
+            T_max = math.ceil(Fraction(100 * (a + 1), lev)) - 1
         
-        IV_max = T_max - 2 * base - ev // 4
-        IV_min = T_min - 2 * base - ev // 4
-        print(max(0, IV_min), min(31, IV_max) + 1)
-        poss_ivs.extend([x for x in range(max(0, IV_min), min(31, IV_max) + 1)])
-    if len(poss_ivs) == 0:
-        return 0
-    return min(poss_ivs), max(poss_ivs)
+            IV_max = T_max - 2 * base[curr] - ev[i] // 4
+            IV_min = T_min - 2 * base[curr] - ev[i] // 4
+            poss_ivs.extend([x for x in range(max(0, IV_min), min(31, IV_max) + 1)])
+        if len(poss_ivs) == 0:
+            ivs[curr] = (-1, -1)
+        else:
+            ivs[curr] = (min(poss_ivs), max(poss_ivs))
+        poss_ivs = []
+    return ivs
 
 def get_name(gray_nature_page):
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
