@@ -26,7 +26,12 @@ class API():
         self.base = get_base_stats(self.name)
         self.ivs['hp'] = calc_iv_hp(self.base['hp'], self.stats['hp'], self.level, evs[0])
         self.ivs.update(calc_iv_stat(self.base, self.stats, self.nat, self.level, evs[1::]))
-        
+
+    def calc(self):
+        self.ivs['hp'] = calc_iv_hp(self.base['hp'], self.stats['hp'], self.level, self.evs[0])
+        self.ivs.update(calc_iv_stat(self.base, self.stats, self.nat, self.level, self.evs[1::]))
+
+
     def change_state_zero(self):
         self.name = ''
         self.nat = ''
@@ -45,6 +50,18 @@ class API():
     def get_evs(self):
         print(self.evs)
         return self.evs
+
+    def set_evs(self, evs):
+        self.evs = evs
+    
+    def get_name(self):
+        return self.name
+    
+    def get_level(self):
+        return self.level
+    
+    def get_nature(self):
+        return self.nat
     
 a = API()
 print(a.name, a.nat, a.level, a.stats)

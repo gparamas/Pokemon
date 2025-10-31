@@ -1,10 +1,16 @@
 <html>
 	<body>
 		<script>
-			function b() {
+			function first_ss() {
 				pywebview.api.change_state_one().then(() => console.log('b'))
 			}
-			function a() {
+			function second_ss() {
+				const set_char = ([name_val, lev, nat]) => {
+					const [namelev, nature] = [document.getElementById('namelevel'), document.getElementById('nature')];
+					namelev.innerHTML = name_val.charAt(0).toUpperCase() + name_val.slice(1) + " " + lev;
+					nature.innerHTML = nat + ' nature';
+				}
+				const char = Promise.all([pywebview.api.get_name(), pywebview.api.get_level(), pywebview.api.get_nature()]).then((values) => set_char(values));
 				pywebview.api.change_state_two(new Array(128, 0, 124, 252, 0, 4))
 				.then(
 					() => pywebview.api.get_ivs())
@@ -16,7 +22,7 @@
 				)
 				.then(
 					([ivs, stats, evs]) => {
-						document.getElementById('i').innerHTML = 
+						document.getElementById('table').innerHTML = 
 							`<table>
 							<tr>
 								<th>Name</th>
@@ -27,53 +33,159 @@
 							<tr>
 								<td>hp</td>
 								<td>${stats['hp']}</td>
-								<td>${evs[0]}</td>
+								<td>
+  									<input type="text" id=hpev value=${evs[0]}>
+								</td>
 								<td>${ivs['hp']}</td>
 							</tr>
 							<tr>
 								<td>atk</td>
 								<td>${stats['attack']}</td>
-								<td>${evs[1]}</td>
+								<td>
+  									<input type="text" id=atev value=${evs[1]}>
+								</td>
 								<td>${ivs['attack']}</td>
 							</tr>
 							<tr>
 								<td>def</td>
 								<td>${stats['defense']}</td>
-								<td>${evs[2]}</td>
+								<td>
+  									<input type="text" id=dfev value=${evs[2]}>
+								</td>
 								<td>${ivs['defense']}</td>
 								
 							</tr>
 							<tr>
 								<td>spatk</td>
 								<td>${stats['special-attack']}</td>
-								<td>${evs[3]}</td>
+								<td>
+  									<input type="text" id=spev value=${evs[3]}>
+								</td>
 								<td>${ivs['special-attack']}</td>
 							</tr>
 							<tr>
 								<td>spdef</td>
 								<td>${stats['special-defense']}</td>
-								<td>${evs[4]}</td>
+								<td>
+  									<input type="text" id=sdev value=${evs[4]}>
+								</td>
 								<td>${ivs['special-defense']}</td>
 							</tr>
 							<tr>
 								<td>spd</td>
 								<td>${stats['speed']}</td>
-								<td>${evs[5]}</td>
+								<td>
+  									<input type="text" id=seev value=${evs[5]}>
+								</td>
 								<td>${ivs['speed']}</td>
 							</tr>
 							</table>
 							`
 				})
 			}
+			function set() {
+				const set_char = ([name_val, nat, lev]) => {
+					const [namelev, nature] = [document.getElementById('namelevel'), document.getElementById('nature')];
+					namelev.innerHTML = name_val + lev;
+					nature.innerHTML = nat;
+				}
+				const char = Promise.all([pywebview.api.get_name(), pywebview.api.get_level(), pywebview.api.get_nature()]).then((values) => set_char(values));
+				const strEvs = [document.getElementById('hpev').value,
+								document.getElementById('atev').value,
+								document.getElementById('dfev').value,
+								document.getElementById('spev').value,
+								document.getElementById('sdev').value,
+								document.getElementById('seev').value];
+				const evs = strEvs.map((x) => parseInt(x))
+				pywebview.api.set_evs(evs).then(
+					() => pywebview.api.calc()
+				)
+				.then(
+					() => pywebview.api.get_ivs())
+				.then(
+					(ivs) => pywebview.api.get_stats().then(stats => [ivs, stats])
+				)
+				.then(
+					([ivs, stats]) => pywebview.api.get_evs().then(evs => [ivs, stats, evs])
+				)
+				.then(
+					([ivs, stats, evs]) => {
+					document.getElementById('table').innerHTML =
+							`<table>
+							<tr>
+								<th>Name</th>
+								<th>Stat Value</th>
+								<th>EV Value</th>
+								<th>IV Range</th>
+							</tr>
+							<tr>
+								<td>hp</td>
+								<td>${stats['hp']}</td>
+								<td>
+  									<input type="text" id=hpev value=${evs[0]}>
+								</td>
+								<td>${ivs['hp']}</td>
+							</tr>
+							<tr>
+								<td>atk</td>
+								<td>${stats['attack']}</td>
+								<td>
+  									<input type="text" id=atev value=${evs[1]}>
+								</td>
+								<td>${ivs['attack']}</td>
+							</tr>
+							<tr>
+								<td>def</td>
+								<td>${stats['defense']}</td>
+								<td>
+  									<input type="text" id=dfev value=${evs[2]}>
+								</td>
+								<td>${ivs['defense']}</td>
+								
+							</tr>
+							<tr>
+								<td>spatk</td>
+								<td>${stats['special-attack']}</td>
+								<td>
+  									<input type="text" id=spev value=${evs[3]}>
+								</td>
+								<td>${ivs['special-attack']}</td>
+							</tr>
+							<tr>
+								<td>spdef</td>
+								<td>${stats['special-defense']}</td>
+								<td>
+  									<input type="text" id=sdev value=${evs[4]}>
+								</td>
+								<td>${ivs['special-defense']}</td>
+							</tr>
+							<tr>
+								<td>spd</td>
+								<td>${stats['speed']}</td>
+								<td>
+  									<input type="text" id=seev value=${evs[5]}>
+								</td>
+								<td>${ivs['speed']}</td>
+							</tr>
+							</table>
+							`
+			})
+				
+			}
 		</script>
 		<div>
-			<button onclick="b()">1</button>
+			<button onclick="first_ss()">Take First Screenshot</button>
 		</div>
 		<div>
-			<button onclick="a()">1</button>
+			<button onclick="second_ss()">Take Second Screenshot</button>
+		</div>
+		<div>
+			<h3 id ='namelevel'></h3>
+			<h3 id="nature"></h3>
 		</div>
 		<div id="container">
-			<h1 class="p" id="i"></h1>
+			<h1 id="table"></h1>
+			<button onclick="set()">Calculate</button>
 		</div>
 	</body>
 </html>
