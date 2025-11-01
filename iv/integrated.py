@@ -7,9 +7,10 @@ from utils1 import *
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 def main():
-    nature_page, stat_page = get_both_ss_test()
+    gray_nature_page = get_ss_manual()
+    gray_stat_page = get_ss_manual()
 
-    gray_nature_page = cv2.cvtColor(nature_page, cv2.COLOR_RGB2GRAY)
+    #gray_nature_page = cv2.cvtColor(nature_page, cv2.COLOR_RGB2GRAY)
     lvl_img = gray_nature_page[880:960, 420:600]
     lvl_img = cv2.threshold(lvl_img, 200, 255, cv2.THRESH_BINARY)[1]
     lvl_img = 255 - lvl_img
@@ -18,7 +19,8 @@ def main():
     #gray_nature_page = cv2.threshold(gray_nature_page, 20, 255, cv2.THRESH_BINARY)[1]
     name_img = cv2.threshold(gray_nature_page, 200, 255, cv2.THRESH_BINARY)[1]
     name_img = 255 - name_img
-    name_img = name_img[500:750, 180:550]
+    name_img = name_img[650:750, 180:550]
+    cv2.imwrite('name.png', name_img)
 
     name_str = pytesseract.image_to_string(name_img, lang='eng', config=r'--psm 6')
     s = []
@@ -31,7 +33,7 @@ def main():
         for y in name_str.split(' '):
             best.append(ratcliff_obershelp_similarity(y.lower(), x.lower()))
         score.append(max(best))
-
+    print('a' + name_str)
     name = s[score.index(max(score))]
 
     gray_nature_page = 255 - gray_nature_page
@@ -78,7 +80,7 @@ def main():
 
     poke_nature = list_natures[score.index(max(score))]
 
-    gray_stat_page = cv2.cvtColor(stat_page, cv2.COLOR_RGB2GRAY)
+    #gray_stat_page = cv2.cvtColor(stat_page, cv2.COLOR_RGB2GRAY)
     gray_stat_page = cv2.threshold(gray_stat_page, 0, 255, cv2.THRESH_BINARY)[1]
 
     left = gray_stat_page[385:685, 1180:1330]
@@ -137,7 +139,7 @@ def main():
 
     poke_stats = [calc_iv_hp(spec_stats['hp'], read_stats['hp'], level, 128)]
     all_stats = ['attack', 'defense', 'special-attack', 'special-defense', 'speed']
-    poke_stats.extend([calc_iv_stat(spec_stats[x], read_stats[x], (1 if natures[poke_nature]['+'] == natures[poke_nature]['-'] else 1.1 if natures[poke_nature]['+'] == x else .9 if natures[poke_nature]['-'] == x else 1), level, (124 if x == 'defense' else 252 if x =='special-attack' else 4 if x == 'speed' else 0)) for x in all_stats])
+    #poke_stats.extend([calc_iv_stat(spec_stats[x], read_stats[x], (1 if natures[poke_nature]['+'] == natures[poke_nature]['-'] else 1.1 if natures[poke_nature]['+'] == x else .9 if natures[poke_nature]['-'] == x else 1), level, (124 if x == 'defense' else 252 if x =='special-attack' else 4 if x == 'speed' else 0)) for x in all_stats])
     print(poke_stats)
     
 

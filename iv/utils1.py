@@ -62,10 +62,8 @@ def trim(img):
     return resized
 
 def get_ss_manual():
-    while(True):
-        if(keyboard.is_pressed('space')):
-            image = np.array(pya.screenshot().convert('RGB'))
-            break
+    keyboard.wait('space')
+    image = np.array(pya.screenshot().convert('RGB'))
     image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     return image
 
@@ -78,7 +76,7 @@ def calc_iv_hp(base, curr, lev, ev=0):
     A = curr - lev - 10 
     T_min = math.ceil(Fraction(100*A,lev))
     T_max = math.ceil(Fraction(100*(A+1),lev))
-    return T_min - 2 * base - ev//4, T_max - 2 * base - ev//4-1
+    return max(0, T_min - 2 * base - ev//4), min(31, T_max - 2 * base - ev//4-1)
     
 def calc_iv_stat(base, stats, nat, lev, ev=[0, 0, 0, 0, 0]):
     all_stats = ['attack', 'defense', 'special-attack', 'special-defense', 'speed']
@@ -112,7 +110,7 @@ def get_name(gray_nature_page):
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
     name_img = cv2.threshold(gray_nature_page, 200, 255, cv2.THRESH_BINARY)[1]
     name_img = 255 - name_img
-    name_img = name_img[500:750, 180:550]
+    name_img = name_img[650:750, 180:550]
 
     name_str = pytesseract.image_to_string(name_img, lang='eng', config=r'--psm 6')
     s = []

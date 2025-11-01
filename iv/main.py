@@ -12,7 +12,7 @@ class API():
         self.evs = list()
 
     def change_state_one(self):
-        img, s = get_both_ss_test()
+        img = get_ss()
         #img = get_ss()
         self.nat = get_nature(img)
         self.name = get_name(img)
@@ -20,8 +20,7 @@ class API():
 
     def change_state_two(self, evs):
         self.evs = evs
-        s, img = get_both_ss_test()
-        #img = get_ss()
+        img = get_ss()
         self.stats = get_stats(img)
         self.base = get_base_stats(self.name)
         self.ivs['hp'] = calc_iv_hp(self.base['hp'], self.stats['hp'], self.level, evs[0])
@@ -38,6 +37,8 @@ class API():
         self.level = 0
         self.stats = dict()
         self.base = dict()
+        self.ivs = dict()
+        self.evs = list()
 
     def get_ivs(self):
         print(self.ivs)
@@ -62,9 +63,14 @@ class API():
     
     def get_nature(self):
         return self.nat
+
+def position_window(w):
+    w.resize(450, 570)
+    w.move(30, 30)
+    w.show()
     
 a = API()
 print(a.name, a.nat, a.level, a.stats)
 window = wv.create_window('s', url='D:\\Pokemon\\iv\\first_window.html', js_api=a)
-wv.start(debug=True)
+wv.start(position_window, window)
 

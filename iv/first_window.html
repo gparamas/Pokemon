@@ -2,7 +2,7 @@
 	<body>
 		<script>
 			function first_ss() {
-				pywebview.api.change_state_one().then(() => console.log('b'))
+				pywebview.api.change_state_zero().then(pywebview.api.change_state_one().then(() => console.log('b')))		
 			}
 			function second_ss() {
 				const set_char = ([name_val, lev, nat]) => {
@@ -11,7 +11,7 @@
 					nature.innerHTML = nat + ' nature';
 				}
 				const char = Promise.all([pywebview.api.get_name(), pywebview.api.get_level(), pywebview.api.get_nature()]).then((values) => set_char(values));
-				pywebview.api.change_state_two(new Array(128, 0, 124, 252, 0, 4))
+				pywebview.api.change_state_two(new Array(0, 0, 0, 0, 0, 0))
 				.then(
 					() => pywebview.api.get_ivs())
 				.then(
